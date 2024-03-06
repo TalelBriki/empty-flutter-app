@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('GIT PULL') {
+            steps {
+                git branch: "main", url: 'https://github.com/TalelBriki/empty-flutter-app.git'
+            }
+        }
+        stage('TEST') {
+            steps {
+                bat 'flutter pub get'
+
+                bat 'flutter test'
+            }
+        }
+        stage('BUILD') {
+            steps {
+                bat '''
+                  #!/bin/sh
+                  flutter build apk -t lib/main.dart
+                  '''
+            }
+        }
+        stage('DISTRIBUTE') {
+            steps {
+                appCenter apiToken: '7987e73db270519bc83cb4a3310b27adb5934991',
+                        ownerName: 'talelbriki13',
+                        appName: 'my-app',
+                        pathToApp: 'build/app/outputs/flutter-apk/app-release.apk',
+                        distributionGroups: 'internal'
+            }
+        }
+    }
+}
